@@ -1,0 +1,269 @@
+#BD
+CREATE DATABASE shop
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'Russian_Russia.1251'
+    LC_CTYPE = 'Russian_Russia.1251'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;
+    
+ #scheme
+    CREATE SCHEMA IF NOT EXISTS public
+    AUTHORIZATION postgres;
+
+COMMENT ON SCHEMA public
+    IS 'standard public schema';
+
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+GRANT ALL ON SCHEMA public TO postgres;
+
+
+#tables
+
+CREATE TABLE IF NOT EXISTS public.categories
+(
+    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    created_at time without time zone,
+    updated_at time without time zone,
+    deleted_at time without time zone,
+    name text COLLATE pg_catalog."default",
+    description text COLLATE pg_catalog."default",
+    CONSTRAINT categories_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.categories
+    OWNER to postgres;
+    
+    
+    
+    CREATE TABLE IF NOT EXISTS public.products
+(
+    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    created_at time without time zone,
+    updated_at time without time zone,
+    deleted_at time without time zone,
+    name text COLLATE pg_catalog."default",
+    description text COLLATE pg_catalog."default",
+    hidden boolean,
+    CONSTRAINT products_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.products
+    OWNER to postgres;
+
+
+
+CREATE TABLE IF NOT EXISTS public.categories_products
+(
+    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    categories_id bigint NOT NULL,
+    products_id bigint NOT NULL,
+    CONSTRAINT categories_products_pkey PRIMARY KEY (id),
+    CONSTRAINT categories_fkey FOREIGN KEY (categories_id)
+        REFERENCES public.categories (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+        NOT VALID,
+    CONSTRAINT products_fkey FOREIGN KEY (products_id)
+        REFERENCES public.products (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.categories_products
+    OWNER to postgres;
+    
+    
+    
+    CREATE TABLE IF NOT EXISTS public.customers
+(
+    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    created_at time without time zone,
+    updated_at time without time zone,
+    deleted_at time without time zone,
+    name text COLLATE pg_catalog."default",
+    phone text COLLATE pg_catalog."default",
+    email text COLLATE pg_catalog."default",
+    shoppind_address text COLLATE pg_catalog."default",
+    CONSTRAINT customers_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.customers
+    OWNER to postgres;
+    
+    
+    
+    CREATE TABLE IF NOT EXISTS public.orders
+(
+    id bigint NOT NULL,
+    customer_id bigint NOT NULL,
+    created_ad time without time zone,
+    updated_at time without time zone,
+    deleted_at time without time zone,
+    status integer,
+    paid boolean,
+    CONSTRAINT orders_pkey PRIMARY KEY (id),
+    CONSTRAINT customer_fkey FOREIGN KEY (customer_id)
+        REFERENCES public.customers (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.orders
+    OWNER to postgres;
+    
+    
+    
+    CREATE TABLE IF NOT EXISTS public.order_lines
+(
+    id bigint NOT NULL,
+    order_id bigint NOT NULL,
+    variant_id bigint NOT NULL,
+    created_at time without time zone,
+    updated_at time without time zone,
+    deleted_at time without time zone,
+    price numeric,
+    amount numeric,
+    CONSTRAINT order_lines_pkey PRIMARY KEY (id),
+    CONSTRAINT order_fkey FOREIGN KEY (order_id)
+        REFERENCES public.orders (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+        NOT VALID,
+    CONSTRAINT variant_id FOREIGN KEY (variant_id)
+        REFERENCES public.variants (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.order_lines
+    OWNER to postgres;
+    
+    
+    
+    CREATE TABLE IF NOT EXISTS public.variants
+(
+    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    product_id bigint NOT NULL,
+    created_at time without time zone,
+    updated_at time without time zone,
+    deleted_at time without time zone,
+    sku text COLLATE pg_catalog."default",
+    barcode text COLLATE pg_catalog."default",
+    price numeric,
+    amount numeric,
+    CONSTRAINT variants_pkey PRIMARY KEY (id),
+    CONSTRAINT product_fkey FOREIGN KEY (product_id)
+        REFERENCES public.products (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.variants
+    OWNER to postgres;
+    
+    
+    
+    
+    CREATE TABLE IF NOT EXISTS public.options
+(
+    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    created_at time without time zone,
+    updated_at time without time zone,
+    deleted_at time without time zone,
+    name text COLLATE pg_catalog."default",
+    CONSTRAINT option_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.options
+    OWNER to postgres;
+    
+    
+    
+    CREATE TABLE IF NOT EXISTS public.option_values
+(
+    id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    option_id bigint NOT NULL,
+    created_at time without time zone,
+    updated_at time without time zone,
+    deleted_at time without time zone,
+    name text COLLATE pg_catalog."default",
+    CONSTRAINT option_values_pkey PRIMARY KEY (id),
+    CONSTRAINT option_fkey FOREIGN KEY (option_id)
+        REFERENCES public.options (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.option_values
+    OWNER to postgres;
+    
+    
+    
+    CREATE TABLE IF NOT EXISTS public.variants_options_values
+(
+    id bigint NOT NULL,
+    variant_id bigint NOT NULL,
+    option_value_id bigint NOT NULL,
+    CONSTRAINT variants_options_values_pkey PRIMARY KEY (id),
+    CONSTRAINT option_value_fkey FOREIGN KEY (option_value_id)
+        REFERENCES public.option_values (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT variant_fkey FOREIGN KEY (variant_id)
+        REFERENCES public.variants (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.variants_options_values
+    OWNER to postgres;
+    
+    
+    
+    CREATE TABLE IF NOT EXISTS public.products_options
+(
+    id bigint NOT NULL,
+    product_id bigint NOT NULL,
+    option_id bigint NOT NULL,
+    CONSTRAINT products_options_pkey PRIMARY KEY (id),
+    CONSTRAINT option_fkey FOREIGN KEY (option_id)
+        REFERENCES public.options (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT product_fkey FOREIGN KEY (product_id)
+        REFERENCES public.products (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.products_options
+    OWNER to postgres;
